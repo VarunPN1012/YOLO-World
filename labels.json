@@ -1,0 +1,9 @@
+[
+    ["Person"] ,
+    ["Hand"],
+    ["abandoned object or unattended bag or object left behind or item left on the ground or suspicious unattended object or unclaimed luggage or backpack with no person nearby or package left alone or object left in a public space"],
+    ["handbag, handbag in air and in ground,any object carried in hand"],
+    ["Fire"],
+    ["Smoke"]
+]
+
