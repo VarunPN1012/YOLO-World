@@ -1,43 +1,78 @@
-FROM nvidia/cuda:11.8.0-devel-ubuntu22.04
+FROM nvcr.io/nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
-ARG MODEL="yolo_world_l_dual_vlpan_l2norm_2e-3_100e_4x8gpus_obj365v1_goldg_train_lvis_minival.py"
-ARG WEIGHT="yolo_world_l_clip_base_dual_vlpan_2e-3adamw_32xb16_100e_o365_goldg_train_pretrained-0e566235.pth"
+# Set non-interactive mode for apt
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV FORCE_CUDA="1"
-ENV MMCV_WITH_OPS=1
-
+# Install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip     \
+    build-essential \
+    gcc \
+    g++ \
+    git \
+    curl \
+    ca-certificates \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
     libgl1-mesa-glx \
-    libsm6          \
-    libxext6        \
-    libxrender-dev  \
-    libglib2.0-0    \
-    git             \
-    python3-dev     \
-    python3-wheel
+    libgl1-mesa-dev \
+    libgtk2.0-dev \
+    libgtk-3-dev \
+    python3-dev \
+    python3-pip \
+    python3-setuptools \
+    python3-wheel \
+    python3-venv \
+    python3-distutils \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip \
-    && pip3 install   \
-        gradio        \
-        opencv-python \
-        supervision   \
-        mmengine      \
-        setuptools    \
-        openmim       \
-    && mim install mmcv==2.0.0 \
-    && pip3 install --no-cache-dir --index-url https://download.pytorch.org/whl/cu118 \
-        wheel         \
-        torch         \
-        torchvision   \
-        torchaudio
+# Set Python alias
+RUN ln -sf /usr/bin/python3 /usr/bin/python && \
+    ln -sf /usr/bin/pip3 /usr/bin/pip
 
-COPY . /yolo
-WORKDIR /yolo
+# Install PyTorch 2.0.0 + CUDA 11.8 and related dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu118 \
+        torch==2.0.0+cu118 \
+        torchvision==0.15.1+cu118 \
+        torchaudio==2.0.1+cu118
 
-RUN pip3 install -e .
+# Install Python libraries (match your working env)
+RUN pip install \
+    wheel==0.45.1 \
+    mmengine==0.10.6 \
+    openmim==0.3.9 \
+    opencv-python==4.9.0.80 \
+    opencv-python-headless==4.11.0.86 \
+    supervision==0.19.0 \
+    matplotlib==3.7.5 \
+    numpy==1.24.4 \
+    pandas==2.0.3 \
+    scipy==1.10.0 \
+    scikit-learn==1.3.2 \
+    albumentations==1.4.0 \
+    addict==2.4.0 \
+    pycocotools==2.0.7 \
+    tqdm==4.65.2 \
+    shapely==2.0.7 \
+    Pillow==10.2.0 \
+    timm==0.6.13 \
+    onnx==1.17.0 \
+    onnxruntime==1.19.2 \
+    onnxsim==0.4.36 \
+    rich==13.4.2 \
+    prettytable==3.11.0 \
+    openxlab==0.1.2 \
+    huggingface-hub==0.30.2 \
+    transformers==4.33.0
 
-RUN curl -o weights/$WEIGHT -L https://huggingface.co/wondervictor/YOLO-World/resolve/main/$WEIGHT
+# Install MMCV 2.0.0 using MIM
+RUN mim install mmcv==2.0.0
 
-ENTRYPOINT [ "python3", "demo.py" ]
-CMD ["configs/pretrain/$MODEL", "weights/$WEIGHT"]
+RUN pip install \
+    mmdet==3.3.0 \
+    mmyolo==0.6.0 \
+    git+https://github.com/lvis-dataset/lvis-api.git 
