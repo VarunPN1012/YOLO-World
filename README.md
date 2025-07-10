@@ -3,13 +3,11 @@
 Link to download the model - https://huggingface.co/wondervictor/YOLO-World/blob/main/yolo_world_v2_s_obj365v1_goldg_pretrain-55b943ea.pth
 
 To pull the docker base image and create another image with all the required dependencies for setting up environment for .pt to onnx conversion do run 
-Inside pytorch_to_onnx_conversion
 
 ```
 docker build -t docker_image_name/with/required/dependencies -f Dockerfile .
 ```
-
-Create a container of the new updated image volume mounted on the ```pytorch_to_onnx_conversion``` directory
+Source for lvis_v1_minival_inserted_image_name.json,  https://huggingface.co/GLIPModel/GLIP/blob/main/lvis_v1_minival_inserted_image_name.json
 
 ```
 docker run -it --gpus all --name pytorch_onnx_conversion_image -v project/host/directory:/workspace docker_image_name/with/required/dependencies
@@ -17,7 +15,6 @@ docker run -it --gpus all --name pytorch_onnx_conversion_image -v project/host/d
 
 To Run the pytorch to onnx conversion 
 
-Inside the container --> inside pytorch_to_onnx_conversion directory 
 
 For setting the prompt based classes for the model just modify the given ``` labels.json ```
 
